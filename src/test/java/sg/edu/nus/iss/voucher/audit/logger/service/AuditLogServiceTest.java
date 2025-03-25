@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
@@ -42,7 +43,16 @@ public class AuditLogServiceTest {
 	@Autowired
     private AuditLogService auditLogService;
 	
-	 private final Pageable pageable = PageRequest.of(0, 10);
+	private final Pageable pageable = PageRequest.of(0, 10);
+	
+	private AuditLog sampleAuditLog;
+	private AuditLogDTO sampleAuditLogDTO;
+
+	@BeforeEach
+	void setup() {
+		sampleAuditLog = new AuditLog();
+		sampleAuditLogDTO = new AuditLogDTO();
+	}
     
     @Test
     void testExecuteAuditLog() {
@@ -97,28 +107,38 @@ public class AuditLogServiceTest {
 	}
 	
 
-    @Test
-    void testSearchByActivityTypeAndUserId() {
-    	
-    	AuditLog sampleAuditLog = new AuditLog();
-    	AuditLogDTO sampleAuditLogDTO = new AuditLogDTO();
-    	
-        // Arrange
-        Page<AuditLog> auditLogPage = new PageImpl<>(List.of(sampleAuditLog), pageable, 1);
+	@Test
+	void testSearchByActivityTypeAndUserId() {
 
-        when(auditLogRepository.findByActivityTypeAndUserId("LOGIN", "user123", pageable))
-            .thenReturn(auditLogPage);
+		// Arrange
+		Page<AuditLog> auditLogPage = new PageImpl<>(List.of(sampleAuditLog), pageable, 1);
 
-        try (MockedStatic<DTOMapper> staticMock = Mockito.mockStatic(DTOMapper.class)) {
-            staticMock.when(() -> DTOMapper.toauditLogDTO(sampleAuditLog)).thenReturn(sampleAuditLogDTO);
+		when(auditLogRepository.findByActivityTypeAndUserId("LOGIN", "user123", pageable)).thenReturn(auditLogPage);
 
-            // Act
-            Map<Long, List<AuditLogDTO>> result =
-                auditLogService.searchAuditLogs("LOGIN", "user123", pageable);
+		try (MockedStatic<DTOMapper> staticMock = Mockito.mockStatic(DTOMapper.class)) {
+			staticMock.when(() -> DTOMapper.toauditLogDTO(sampleAuditLog)).thenReturn(sampleAuditLogDTO);
 
-            // Assert
-            assertEquals(1, result.size());
-            assertEquals(List.of(sampleAuditLogDTO), result.get(1L));
-        }
-    }
+			// Act
+			Map<Long, List<AuditLogDTO>> result = auditLogService.searchAuditLogs("LOGIN", "user123", pageable);
+
+			// Assert
+			assertEquals(1, result.size());
+			assertEquals(List.of(sampleAuditLogDTO), result.get(1L));
+		}
+	}
+    
+	@Test
+	void testSearchByActivityTypeOnly() {
+		Page<AuditLog> auditLogPage = new PageImpl<>(List.of(sampleAuditLog), pageable, 1);
+		when(auditLogRepository.findByActivityType("LOGIN", pageable)).thenReturn(auditLogPage);
+
+		try (MockedStatic<DTOMapper> staticMock = Mockito.mockStatic(DTOMapper.class)) {
+			staticMock.when(() -> DTOMapper.toauditLogDTO(sampleAuditLog)).thenReturn(sampleAuditLogDTO);
+
+			Map<Long, List<AuditLogDTO>> result = auditLogService.searchAuditLogs("LOGIN", null, pageable);
+
+			assertEquals(1, result.size());
+			assertEquals(List.of(sampleAuditLogDTO), result.get(1L));
+		}
+	}
 }
