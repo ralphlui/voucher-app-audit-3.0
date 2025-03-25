@@ -12,8 +12,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +41,11 @@ public class AuditLogServiceTest {
 
 	@Autowired
     private AuditLogService auditLogService;
+	
+	 private final Pageable pageable = PageRequest.of(0, 10);
     
     @Test
-    void testExecuteAuditLog_shouldSaveAuditLogWithCorrectValues() {
+    void testExecuteAuditLog() {
         // Arrange
         AuditLogDTO dto = new AuditLogDTO();
         dto.setStatusCode("200");
@@ -70,7 +70,7 @@ public class AuditLogServiceTest {
     
     
 	@Test
-	void testRetrieveAllAuditLogs_shouldReturnMappedDTOsWithTotalCountKey() {
+	void testRetrieveAllAuditLogs() {
 		// Arrange
 		AuditLog auditLog = new AuditLog();
 		AuditLogDTO auditLogDTO = new AuditLogDTO();
@@ -95,4 +95,30 @@ public class AuditLogServiceTest {
 			assertSame(auditLogDTO, dtoList.get(0));
 		}
 	}
+	
+
+    @Test
+    void testSearchByActivityTypeAndUserId() {
+    	
+    	AuditLog sampleAuditLog = new AuditLog();
+    	AuditLogDTO sampleAuditLogDTO = new AuditLogDTO();
+    	
+        // Arrange
+        Page<AuditLog> auditLogPage = new PageImpl<>(List.of(sampleAuditLog), pageable, 1);
+
+        when(auditLogRepository.findByActivityTypeAndUserId("LOGIN", "user123", pageable))
+            .thenReturn(auditLogPage);
+
+        try (MockedStatic<DTOMapper> staticMock = Mockito.mockStatic(DTOMapper.class)) {
+            staticMock.when(() -> DTOMapper.toauditLogDTO(sampleAuditLog)).thenReturn(sampleAuditLogDTO);
+
+            // Act
+            Map<Long, List<AuditLogDTO>> result =
+                auditLogService.searchAuditLogs("LOGIN", "user123", pageable);
+
+            // Assert
+            assertEquals(1, result.size());
+            assertEquals(List.of(sampleAuditLogDTO), result.get(1L));
+        }
+    }
 }
