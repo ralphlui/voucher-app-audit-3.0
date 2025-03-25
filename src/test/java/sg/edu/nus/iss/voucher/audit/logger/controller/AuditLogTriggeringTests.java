@@ -1,4 +1,4 @@
-package sg.edu.nus.iss.voucher.audit.logger;
+package sg.edu.nus.iss.voucher.audit.logger.controller;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
