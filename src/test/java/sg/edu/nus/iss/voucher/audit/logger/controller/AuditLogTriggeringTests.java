@@ -1,5 +1,9 @@
 package sg.edu.nus.iss.voucher.audit.logger.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -12,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -172,6 +177,20 @@ public class AuditLogTriggeringTests {
 	        .andExpect(jsonPath("$.success").value(false))
 	        .andExpect(jsonPath("$.message").value("No audit logs found."))
 	        .andDo(print());
+	}
+	
+	@Test
+	void testAddAuditLog() throws Exception {
+		AuditLogDTO auditLogDTO = new AuditLogDTO();
+		auditLogDTO.setUserId("user123");
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		String json = objectMapper.writeValueAsString(auditLogDTO);
+
+		mockMvc.perform(post("/api/audit/execute").contentType(MediaType.APPLICATION_JSON).content(json))
+				.andExpect(status().isOk()).andExpect(content().string("Audit log saved successfully!"));
+
+		verify(auditLogService, times(1)).executeAuditLog(any(AuditLogDTO.class));
 	}
 
 
