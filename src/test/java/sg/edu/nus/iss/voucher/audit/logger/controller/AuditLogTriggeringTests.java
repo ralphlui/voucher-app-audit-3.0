@@ -3,8 +3,10 @@ package sg.edu.nus.iss.voucher.audit.logger.controller;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +83,17 @@ public class AuditLogTriggeringTests {
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$.success").value(true)).andExpect(jsonPath("$.data[0].auditId").value(1))
 				.andDo(print());
+	}
+	
+	@Test
+	void testGetAllAuditLogs_EmptyResult() throws Exception {
+		// Mock empty result
+		Mockito.when(auditLogService.retrieveAllAuditLogs(Mockito.any(Pageable.class)))
+				.thenReturn(Collections.emptyMap());
+
+		// Perform Request
+		mockMvc.perform(MockMvcRequestBuilders.get("/retrieveAllAuditLogs").param("page", "0").param("size", "10")
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound());
 	}
 	
 	@Test
