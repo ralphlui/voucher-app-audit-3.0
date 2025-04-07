@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -51,9 +50,6 @@ public class AuditLogTriggeringTests {
 	
 	@Autowired
 	private MockMvc mockMvc;
-
-	@Autowired
-	private ObjectMapper objectMapper;
 	
 	@MockBean
 	private AuditLogServiceImpl auditLogService;
@@ -89,16 +85,46 @@ public class AuditLogTriggeringTests {
 				.andExpect(jsonPath("$.success").value(true)).andExpect(jsonPath("$.data[0].auditId").value(1))
 				.andDo(print());
 	}
+//	
+//	@Test
+//	void testGetAllAuditLogs_EmptyResult() throws Exception {
+//		// Mock empty result
+//		Mockito.when(auditLogService.retrieveAllAuditLogs(Mockito.any(Pageable.class)))
+//				.thenReturn(Collections.emptyMap());
+//
+//		// Perform Request
+//		mockMvc.perform(MockMvcRequestBuilders.get("/api/audit/retrieveAllAuditLogs").param("page", "0").param("size", "10")
+//				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound());
+//	}
 	
 	@Test
-	void testGetAllAuditLogs_EmptyResult() throws Exception {
-		// Mock empty result
-		Mockito.when(auditLogService.retrieveAllAuditLogs(Mockito.any(Pageable.class)))
-				.thenReturn(Collections.emptyMap());
+	void testGetAllAuditLogsEmptyResult() throws Exception {
+		int page = 0;
+		int size = 10;
 
-		// Perform Request
-		mockMvc.perform(MockMvcRequestBuilders.get("/retrieveAllAuditLogs").param("page", "0").param("size", "10")
-				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound());
+		Pageable pageable = PageRequest.of(page, size, Sort.by("lastupdatedDate").ascending());
+		Mockito.when(auditLogService.retrieveAllAuditLogs(pageable)).thenReturn(Collections.emptyMap());
+
+		mockMvc.perform(
+				MockMvcRequestBuilders.get("/api/audit/retrieveAllAuditLogs").param("page", String.valueOf(page))
+						.param("size", String.valueOf(size)).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNotFound()).andExpect(jsonPath("$.success").value(false))
+				.andExpect(jsonPath("$.message").value("No audit logs are existing."));
+	}
+
+	@Test
+	void testGetAllAuditLogsException() throws Exception {
+		int page = 0;
+		int size = 10;
+
+		Pageable pageable = PageRequest.of(page, size, Sort.by("lastupdatedDate").ascending());
+		Mockito.when(auditLogService.retrieveAllAuditLogs(pageable))
+				.thenThrow(new RuntimeException("Unexpected error"));
+
+		mockMvc.perform(
+				MockMvcRequestBuilders.get("/api/audit/retrieveAllAuditLogs").param("page", String.valueOf(page))
+						.param("size", String.valueOf(size)).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isInternalServerError());
 	}
 	
 	@Test
