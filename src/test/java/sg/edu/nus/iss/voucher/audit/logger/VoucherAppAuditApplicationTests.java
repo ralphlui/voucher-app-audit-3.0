@@ -10,6 +10,7 @@ class VoucherAppAuditApplicationTests {
 
 	@Test
 	void contextLoads() {
+		 // This test is intentionally left empty to serve as a placeholder for future test cases.
 	}
 
 }
