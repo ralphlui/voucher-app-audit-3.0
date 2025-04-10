@@ -19,7 +19,7 @@ public class APIResponse<T> {
 		return APIResponse.<T>builder().success(true).message(message).data(null).totalRecord(1).build();
 	}
 
-	public static <T> APIResponse<T> error(T data) {
+	public static <T> APIResponse<T> error() {
 		return APIResponse.<T>builder().success(false).message("error").totalRecord(0).build();
 	}
 
