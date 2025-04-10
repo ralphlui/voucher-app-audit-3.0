@@ -22,8 +22,5 @@ public class AuditLogDTO {
     private Date lastupdatedDate;
     private String remarks;
 	
-	public AuditLogDTO() {
-		
-	}
 
 }
