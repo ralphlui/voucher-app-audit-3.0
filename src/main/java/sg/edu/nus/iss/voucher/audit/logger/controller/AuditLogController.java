@@ -32,9 +32,12 @@ public class AuditLogController {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AuditLogController.class);
 	
-	@Autowired
+
 	private AuditLogService auditLogService;
 	
+	public AuditLogController(AuditLogService auditLogService) {
+		this.auditLogService = auditLogService;
+	}
 	
 	@PostMapping("/execute")
     public ResponseEntity<String> addAuditLog(@RequestBody AuditLogDTO auditLogDTO) {
@@ -45,7 +48,9 @@ public class AuditLogController {
 	@GetMapping(value = "/retrieveAllAuditLogs", produces = "application/json")
 	public ResponseEntity<APIResponse<List<AuditLogDTO>>> getAllAuditLogs(
 			@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-		logger.info("Retrieving all audit logs ...", page, size);
+		
+		logger.info("Retrieving all audit logs, page: {}, size: {}", page, size);
+
 
 		try {
 			Pageable pageable = PageRequest.of(page, size, Sort.by("lastupdatedDate").ascending());
@@ -75,9 +80,12 @@ public class AuditLogController {
 				}
 
 		} catch (Exception ex) {
-			logger.error("An error occurred while processing getAllAuditLogs API.", ex);
-			throw ex;
+		   
+		    logger.error("An error occurred while processing getAllAuditLogs API. Details: {}", ex.getMessage(), ex);
+
+		    throw new RuntimeException("Error occurred while retrieving audit logs", ex);
 		}
+
 	}
 	
 	@GetMapping(value = "/searchByParams", produces = "application/json")
