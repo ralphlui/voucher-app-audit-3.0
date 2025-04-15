@@ -12,36 +12,32 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 
-import jakarta.transaction.Transactional;
 import sg.edu.nus.iss.voucher.audit.logger.dto.AuditLogDTO;
 import sg.edu.nus.iss.voucher.audit.logger.entity.AuditLog;
 import sg.edu.nus.iss.voucher.audit.logger.repository.AuditLogRepository;
+import sg.edu.nus.iss.voucher.audit.logger.service.Impl.AuditLogServiceImpl;
 import sg.edu.nus.iss.voucher.audit.logger.util.DTOMapper;
 
-@SpringBootTest
-@Transactional
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 public class AuditLogServiceTest {
 
-	@MockBean
+	@Mock
     private AuditLogRepository auditLogRepository;
 
-	@Autowired
-    private AuditLogService auditLogService;
+	@InjectMocks
+	private AuditLogServiceImpl auditLogService;
 	
 	private final Pageable pageable = PageRequest.of(0, 10);
 	
