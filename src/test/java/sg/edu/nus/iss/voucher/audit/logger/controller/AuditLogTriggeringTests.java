@@ -19,9 +19,11 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import sg.edu.nus.iss.voucher.audit.logger.VoucherAppAuditApplication;
 import sg.edu.nus.iss.voucher.audit.logger.dto.AuditLogDTO;
 import sg.edu.nus.iss.voucher.audit.logger.entity.AuditLog;
 import sg.edu.nus.iss.voucher.audit.logger.service.Impl.AuditLogServiceImpl;
@@ -44,8 +47,6 @@ import sg.edu.nus.iss.voucher.audit.logger.util.DTOMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ActiveProfiles("test")
 public class AuditLogTriggeringTests {
 	
