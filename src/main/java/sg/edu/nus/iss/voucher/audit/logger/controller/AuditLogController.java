@@ -95,7 +95,7 @@ public class AuditLogController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        logger.info("Searching audit logs with activityType: {}, userId: {}", activityType, userId);
+		logger.info("Retrieving audit logs with Params, page: {}, size: {}", page, size);
 
         try {
             Pageable pageable = PageRequest.of(page, size,Sort.by("lastupdatedDate").ascending());
